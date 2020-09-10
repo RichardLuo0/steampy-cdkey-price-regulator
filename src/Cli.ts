@@ -11,7 +11,13 @@ export function initOptions(argv: string[]) {
     let newOptions: any = {};
     argv.forEach((e, i) => {
         for (const opt in options) {
-            if (opt == e) newOptions[opt] = parse(typeof opt, argv[i + 1]);
+            if (e == opt) {
+                newOptions[opt] = parse(
+                    typeof (options as any)[opt],
+                    argv[i + 1]
+                );
+                return;
+            }
             if (e == "-help") showHelp();
         }
     });

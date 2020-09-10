@@ -25,7 +25,6 @@ if (options["-token"].length <= 0 && fs.existsSync(filePath))
 else fs.writeFileSync(filePath, options["-token"]);
 if (options["-token"].length <= 0) throw new Error("token未定义!");
 
-// must be negative!
 const spread = options["-spread"];
 
 api.setToken(options["-token"]);
@@ -42,15 +41,24 @@ api.listSelf().then(res => {
                           `请输入${game.steamGame.gameName}新价格？`
                       )
                   )
-                : (game.steamGame.keyPrice += spread);
+                : game.steamGame.keyPrice + spread;
             if (newPrice && newPrice > 0 && newPrice != game.keyPrice)
                 setNewPrice(game, newPrice);
         }
     });
 });
 
+// delay to avoid server reject
+let isFirst = true;
 function setNewPrice(game: Game, price: number) {
-    api.updateSell(game.id, price).then(() =>
-        console.log(game.steamGame.gameName + "价格已更新为: " + price)
-    );
+    let updateFunction = () =>
+        api
+            .updateSell(game.id, price)
+            .then(() =>
+                console.log(game.steamGame.gameName + "价格已更新为: " + price)
+            );
+    if (isFirst) {
+        updateFunction();
+        isFirst = false;
+    } else setTimeout(updateFunction, 11 * 1000);
 }
