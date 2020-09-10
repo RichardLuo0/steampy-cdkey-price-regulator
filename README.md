@@ -17,9 +17,9 @@
 
 # 可选参数：
 ```
-"-token": "要使用的accessToken，第一次输入后自动保存",
-"-spread": "期望设定为比最低价高多少,为负值时比最低价低多少",
-"-step": "是否对每一个游戏单独设定，true/false",
-"-cookiesPath": "token保存的相对路径",
+"-token": "要使用的accessToken，第一次输入后自动保存，默认为空",
+"-spread": "期望设定为比最低价高多少,为负值时比最低价低多少，默认为0",
+"-step": "是否对每一个游戏单独设定，true/false，默认为false",
+"-cookiesPath": "token保存的相对路径，默认为当前目录下cookies.txt",
 "-help": "显示帮助"
 ```  
