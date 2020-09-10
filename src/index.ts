@@ -42,23 +42,37 @@ api.listSelf().then(res => {
                       )
                   )
                 : game.steamGame.keyPrice + spread;
-            if (newPrice && newPrice > 0 && newPrice != game.keyPrice)
-                setNewPrice(game, newPrice);
+            if (newPrice) setNewPrice(game, newPrice);
         }
     });
 });
 
-// delay to avoid server reject
 let isFirst = true;
 function setNewPrice(game: Game, price: number) {
-    let updateFunction = () =>
-        api
-            .updateSell(game.id, price)
-            .then(() =>
-                console.log(game.steamGame.gameName + "价格已更新为: " + price)
+    if (price <= 0 || price == game.keyPrice) return;
+    api.listSale(game.gameId).then(res => {
+        if (res.content.length <= 0) return;
+        // update when my bid is higher than or equal to others
+        if (
+            res.content[0].saleId != game.id ||
+            res.content[0].keyPrice >= res.content[1].keyPrice
+        ) {
+            // delay to avoid server reject
+            let updateFunction = () =>
+                api
+                    .updateSell(game.id, price)
+                    .then(() =>
+                        console.log(
+                            game.steamGame.gameName + "价格已更新为: " + price
+                        )
+                    );
+            if (isFirst) {
+                updateFunction();
+                isFirst = false;
+            } else setTimeout(updateFunction, 11 * 1000);
+        } else
+            console.log(
+                `${game.steamGame.gameName}已经是当前市场唯一的最低价: ${game.keyPrice}`
             );
-    if (isFirst) {
-        updateFunction();
-        isFirst = false;
-    } else setTimeout(updateFunction, 11 * 1000);
+    });
 }
