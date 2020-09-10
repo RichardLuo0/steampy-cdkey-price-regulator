@@ -27,9 +27,32 @@ export default class SteampyAPI {
     }
 
     listSelf() {
-        return this.get<{ content: Game[] }>(
-            "/xboot/steamKeySale/listSelf?pageNumber=1&pageSize=10&sort=saleStatus&order=desc&startDate=&endDate="
-        );
+        return new Promise<{ content: Game[] }>(resolve => {
+            const url =
+                "/xboot/steamKeySale/listSelf?pageNumber=$page&pageSize=50&sort=saleStatus&order=desc&startDate=&endDate=";
+            let realGamesList: Game[] = [];
+            this.get<{ content: Game[]; totalPages: number }>(
+                url.replace("$page", "1")
+            ).then(res => {
+                realGamesList.push(...res.content);
+                let requests = [];
+                for (let i = 2; i <= res.totalPages; i++) {
+                    requests.push(
+                        this.get<{ content: Game[] }>(
+                            url.replace("$page", i.toString())
+                        )
+                    );
+                }
+                if (requests.length == 0) resolve({ content: realGamesList });
+                else
+                    axios.all(requests).then(res => {
+                        res.forEach(eachRes => {
+                            realGamesList.push(...eachRes.content);
+                        });
+                        resolve({ content: realGamesList });
+                    });
+            });
+        });
     }
 
     updateSell(saleId: string, sellPrice: number) {

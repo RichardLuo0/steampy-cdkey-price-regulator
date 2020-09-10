@@ -51,7 +51,7 @@ let isFirst = true;
 function setNewPrice(game: Game, price: number) {
     if (price <= 0 || price == game.keyPrice) return;
     api.listSale(game.gameId).then(res => {
-        if (res.content.length <= 0) return;
+        if (res.content.length <= 1) return;
         // update when my bid is higher than or equal to others
         if (
             res.content[0].saleId != game.id ||
